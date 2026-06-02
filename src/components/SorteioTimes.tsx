@@ -12,11 +12,12 @@ export function SorteioTimes({ jogadores }: Props) {
   const [resultado, setResultado] = useState<{ times: Time[]; reservas: Jogador[]; avisos: string[] } | null>(null);
   const [animKey, setAnimKey] = useState(0);
 
+  const presentes = jogadores.filter((j) => !j.faltou);
   const minimo = porTime * 2;
-  const podeJogar = jogadores.length >= minimo;
+  const podeJogar = presentes.length >= minimo;
 
   const handleSortear = () => {
-    setResultado(sortearTimes(jogadores, porTime));
+    setResultado(sortearTimes(presentes, porTime));
     setAnimKey((k) => k + 1);
   };
 
@@ -50,9 +51,16 @@ export function SorteioTimes({ jogadores }: Props) {
       {/* Config */}
       <div style={cardStyle}>
         <div style={{ marginBottom: '1rem' }}>
-          <label style={labelStyle}>Jogadores cadastrados</label>
-          <div style={{ fontSize: '32px', fontWeight: 700, fontFamily: '"Bebas Neue", sans-serif', color: 'var(--accent)', letterSpacing: '0.05em' }}>
-            {jogadores.length}
+          <label style={labelStyle}>Presentes</label>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+            <span style={{ fontSize: '32px', fontWeight: 700, fontFamily: '"Bebas Neue", sans-serif', color: 'var(--accent)', letterSpacing: '0.05em' }}>
+              {presentes.length}
+            </span>
+            {jogadores.length !== presentes.length && (
+              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                de {jogadores.length}
+              </span>
+            )}
           </div>
         </div>
 
@@ -71,8 +79,8 @@ export function SorteioTimes({ jogadores }: Props) {
 
         {!podeJogar && (
           <div style={warnStyle}>
-            ⚠️ Cadastre pelo menos <strong>{minimo} jogadores</strong> para sortear times de {porTime}.
-            Faltam {minimo - jogadores.length}.
+            ⚠️ Cadastre pelo menos <strong>{minimo} jogadores presentes</strong> para sortear times de {porTime}.
+            Faltam {minimo - presentes.length}.
           </div>
         )}
 

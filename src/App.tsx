@@ -10,7 +10,7 @@ import './App.css';
 export default function App() {
   const [tab, setTab] = useState<Tab>('cadastro');
   const [darkMode, setDarkMode] = useState(false);
-  const { jogadores, adicionar, remover, editar, importar, exportar } = useJogadores();
+  const { jogadores, adicionar, remover, editar, importar, exportar, toggleFaltou } = useJogadores();
 
   return (
     <div
@@ -72,6 +72,7 @@ export default function App() {
             jogadores={jogadores}
             onRemover={remover}
             onEditar={editar}
+            onToggleFaltou={toggleFaltou}
             onExportar={exportar}
             onImportar={importar}
           />

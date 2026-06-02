@@ -7,11 +7,12 @@ interface Props {
   jogadores: Jogador[];
   onRemover: (id: string) => void;
   onEditar: (id: string, nome: string, nivel: Nivel) => void;
+  onToggleFaltou: (id: string) => void;
   onExportar: () => void;
   onImportar: (data: Jogador[]) => void;
 }
 
-export function ListaJogadores({ jogadores, onRemover, onEditar, onExportar, onImportar }: Props) {
+export function ListaJogadores({ jogadores, onRemover, onEditar, onToggleFaltou, onExportar, onImportar }: Props) {
   const [busca, setBusca] = useState('');
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [editNome, setEditNome] = useState('');
@@ -48,26 +49,26 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onExportar, onI
     e.target.value = '';
   };
 
+  const presentes = jogadores.filter((j) => !j.faltou);
+
   const sorted = [...jogadores]
     .filter((j) => j.nome.toLowerCase().includes(busca.toLowerCase()))
-    .sort((a, b) =>
-      ordenacao === 'nivel'
+    .sort((a, b) => {
+      // Ausentes sempre ao final
+      if (!!a.faltou !== !!b.faltou) return a.faltou ? 1 : -1;
+      return ordenacao === 'nivel'
         ? NIVEL_ORDEM[b.nivel] - NIVEL_ORDEM[a.nivel]
-        : a.nome.localeCompare(b.nome),
-    );
-
-  const media = jogadores.length
-    ? (jogadores.reduce((s, j) => s + NIVEL_ORDEM[j.nivel], 0) / jogadores.length).toFixed(1)
-    : '–';
+        : a.nome.localeCompare(b.nome);
+    });
 
   return (
     <div>
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '1.25rem' }}>
         {[
-          { label: 'Jogadores', valor: jogadores.length },
-          { label: 'Força média', valor: media },
-          { label: 'Times de 6', valor: Math.floor(jogadores.length / 6) },
+          { label: 'Total', valor: jogadores.length },
+          { label: 'Presentes', valor: presentes.length },
+          { label: 'Times de 6', valor: Math.floor(presentes.length / 6) },
         ].map((s) => (
           <div key={s.label} style={statCardStyle}>
             <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--accent)', fontFamily: '"Bebas Neue", sans-serif', letterSpacing: '0.05em' }}>
@@ -120,6 +121,7 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onExportar, onI
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {sorted.map((j) =>
             editandoId === j.id ? (
+              /* Modo edição */
               <div key={j.id} style={{ ...itemStyle, background: 'var(--accent-light)', flexDirection: 'column', gap: '12px' }}>
                 <input
                   value={editNome}
@@ -150,11 +152,52 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onExportar, onI
                 </div>
               </div>
             ) : (
-              <div key={j.id} style={itemStyle}>
+              /* Modo leitura */
+              <div
+                key={j.id}
+                style={{
+                  ...itemStyle,
+                  opacity: j.faltou ? 0.45 : 1,
+                  transition: 'opacity 0.2s',
+                }}
+              >
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text)' }}>{j.nome}</span>
+                  <span
+                    style={{
+                      fontWeight: 600,
+                      fontSize: '14px',
+                      color: 'var(--text)',
+                      textDecoration: j.faltou ? 'line-through' : 'none',
+                    }}
+                  >
+                    {j.nome}
+                  </span>
                 </div>
+
                 <NivelBadge nivel={j.nivel} />
+
+                {/* Botão Faltou / Voltou */}
+                <button
+                  onClick={() => onToggleFaltou(j.id)}
+                  aria-label={j.faltou ? `Marcar ${j.nome} como presente` : `Marcar ${j.nome} como ausente`}
+                  style={{
+                    padding: '0 12px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    borderRadius: '99px',
+                    border: `1px solid ${j.faltou ? '#E24B4A' : 'var(--border)'}`,
+                    background: j.faltou ? '#FCEBEB' : 'transparent',
+                    color: j.faltou ? '#A32D2D' : 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    height: '44px',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  {j.faltou ? 'Voltou' : 'Faltou'}
+                </button>
+
                 <button
                   onClick={() => iniciarEdicao(j)}
                   style={iconBtnStyle}
@@ -189,9 +232,9 @@ const statCardStyle: React.CSSProperties = {
 const itemStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: '10px',
+  gap: '8px',
   minHeight: '56px',
-  padding: '12px 14px',
+  padding: '10px 12px',
   background: 'var(--card-bg)',
   border: '1px solid var(--border)',
   borderRadius: '10px',

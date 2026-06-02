@@ -8,14 +8,14 @@ export const NIVEL_ORDEM: Record<Nivel, number> = {
 
 export const NIVEL_LABELS: Record<Nivel, string> = {
   C: 'Cone',
-  B: 'Operário',
-  A: 'Bom',
+  B: 'Corre e marca',
+  A: 'Joga bem',
 };
 
 export const NIVEL_ICONE: Record<Nivel, string> = {
-  C: '🟠',
-  B: '🔵',
-  A: '🟢',
+  C: '🔺',
+  B: '🏃',
+  A: '⭐',
 };
 
 export const NIVEL_CORES: Record<Nivel, { bg: string; text: string; border: string }> = {
@@ -39,6 +39,7 @@ export interface Jogador {
   id: string;
   nome: string;
   nivel: Nivel;
+  faltou?: boolean;
   criadoEm: number;
 }
 

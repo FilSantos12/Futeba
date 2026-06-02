@@ -51,6 +51,12 @@ export function useJogadores() {
     setJogadores((prev) => prev.filter((j) => j.id !== id));
   };
 
+  const toggleFaltou = (id: string) => {
+    setJogadores((prev) =>
+      prev.map((j) => (j.id === id ? { ...j, faltou: !j.faltou } : j)),
+    );
+  };
+
   const editar = (id: string, nome: string, nivel: Nivel) => {
     setJogadores((prev) =>
       prev.map((j) => (j.id === id ? { ...j, nome: nome.trim(), nivel } : j)),
@@ -74,5 +80,5 @@ export function useJogadores() {
     URL.revokeObjectURL(url);
   };
 
-  return { jogadores, adicionar, remover, editar, importar, exportar };
+  return { jogadores, adicionar, remover, editar, importar, exportar, toggleFaltou };
 }

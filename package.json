@@ -2,7 +2,7 @@
   "name": "futeba",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://SEU_USUARIO.github.io/futeba",
+  "homepage": "https://FilSantos12.github.io/Futeba",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
