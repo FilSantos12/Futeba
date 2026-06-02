@@ -1,4 +1,5 @@
-import { Nivel, NIVEL_LABELS, NIVEL_ICONE, NIVEL_CORES } from '../types';
+import { Nivel, NIVEL_LABELS, NIVEL_CORES } from '../types';
+import { IconCone, IconSleepy, IconRunner, IconStar } from './Icons';
 
 interface Props {
   valor: Nivel;
@@ -7,13 +8,23 @@ interface Props {
   size?: 'sm' | 'md';
 }
 
-const NIVEIS: Nivel[] = ['C', 'B', 'A'];
+const NIVEIS: Nivel[] = ['C', 'P', 'B', 'A'];
+
+function getNivelIcon(nivel: Nivel, size: number, color: string): JSX.Element {
+  switch (nivel) {
+    case 'C': return <IconCone size={size} />;
+    case 'P': return <IconSleepy size={size} color={color} />;
+    case 'B': return <IconRunner size={size} color={color} />;
+    case 'A': return <IconStar size={size} color={color} />;
+  }
+}
 
 export function NivelStars({ valor, onChange, readonly = false, size = 'md' }: Props) {
   if (readonly) {
+    const iconSize = size === 'sm' ? 12 : 14;
     return (
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: size === 'sm' ? '12px' : '14px' }}>
-        {NIVEL_ICONE[valor]} {NIVEL_LABELS[valor]}
+        {getNivelIcon(valor, iconSize, NIVEL_CORES[valor].text)} {NIVEL_LABELS[valor]}
       </span>
     );
   }
@@ -23,6 +34,7 @@ export function NivelStars({ valor, onChange, readonly = false, size = 'md' }: P
       {NIVEIS.map((n) => {
         const selected = n === valor;
         const { bg, text, border } = NIVEL_CORES[n];
+        const iconColor = selected ? text : 'var(--text-secondary)';
         return (
           <button
             key={n}
@@ -47,7 +59,7 @@ export function NivelStars({ valor, onChange, readonly = false, size = 'md' }: P
               padding: '4px',
             }}
           >
-            <span style={{ fontSize: '22px', lineHeight: 1 }}>{NIVEL_ICONE[n]}</span>
+            {getNivelIcon(n, 22, iconColor)}
             <span style={{ fontSize: '11px' }}>{NIVEL_LABELS[n]}</span>
           </button>
         );

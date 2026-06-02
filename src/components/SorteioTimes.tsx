@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Jogador, Time, NIVEL_LABELS } from '../types';
 import { sortearTimes } from '../utils/sortear';
 import { NivelBadge } from './NivelBadge';
+import { ShuffleAnimation } from './ShuffleAnimation';
+import { IconShuffle } from './Icons';
 
 interface Props {
   jogadores: Jogador[];
@@ -11,15 +13,21 @@ export function SorteioTimes({ jogadores }: Props) {
   const [porTime, setPorTime] = useState(6);
   const [resultado, setResultado] = useState<{ times: Time[]; reservas: Jogador[]; avisos: string[] } | null>(null);
   const [animKey, setAnimKey] = useState(0);
+  const [animando, setAnimando] = useState(false);
 
   const presentes = jogadores.filter((j) => !j.faltou);
   const minimo = porTime * 2;
   const podeJogar = presentes.length >= minimo;
 
-  const handleSortear = () => {
-    setResultado(sortearTimes(presentes, porTime));
-    setAnimKey((k) => k + 1);
-  };
+  function handleSortear() {
+    setAnimando(true);
+    const res = sortearTimes(presentes, porTime);
+    setTimeout(() => {
+      setAnimando(false);
+      setResultado(res);
+      setAnimKey((k) => k + 1);
+    }, 1800);
+  }
 
   const handleExportarTimes = () => {
     if (!resultado) return;
@@ -89,11 +97,15 @@ export function SorteioTimes({ jogadores }: Props) {
           disabled={!podeJogar}
           style={{
             ...btnBigStyle,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             opacity: podeJogar ? 1 : 0.5,
             cursor: podeJogar ? 'pointer' : 'not-allowed',
           }}
         >
-          ⚽ Sortear times
+          <IconShuffle size={20} color="#fff" />
+          <span style={{ marginLeft: '8px' }}>Sortear Times</span>
         </button>
 
         {resultado && (
@@ -106,8 +118,11 @@ export function SorteioTimes({ jogadores }: Props) {
         )}
       </div>
 
+      {/* Animação de sorteio */}
+      {animando && <ShuffleAnimation jogadores={presentes} />}
+
       {/* Resultado */}
-      {resultado && (
+      {!animando && resultado && (
         <div key={animKey}>
           {resultado.avisos.length > 0 && (
             <div style={{ marginBottom: '1rem' }}>
@@ -123,12 +138,20 @@ export function SorteioTimes({ jogadores }: Props) {
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', marginBottom: '1rem' }}>
-            {resultado.times.map((time) => {
+            {resultado.times.map((time, index) => {
               const cor = time.cor;
               return (
                 <div
                   key={time.id}
-                  style={{ border: `2px solid ${cor.border}`, borderRadius: '12px', overflow: 'hidden', background: 'var(--card-bg)' }}
+                  style={{
+                    border: `2px solid ${cor.border}`,
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    background: 'var(--card-bg)',
+                    animation: 'futebaFadeInUp 0.4s ease forwards',
+                    animationDelay: `${index * 150}ms`,
+                    opacity: 0,
+                  }}
                 >
                   {/* Header */}
                   <div style={{ background: cor.primary, padding: '12px 16px' }}>

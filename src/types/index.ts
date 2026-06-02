@@ -1,25 +1,29 @@
-export type Nivel = 'C' | 'B' | 'A';
+export type Nivel = 'C' | 'P' | 'B' | 'A';
 
 export const NIVEL_ORDEM: Record<Nivel, number> = {
   C: 1,
-  B: 2,
-  A: 3,
+  P: 2,
+  B: 3,
+  A: 4,
 };
 
 export const NIVEL_LABELS: Record<Nivel, string> = {
   C: 'Não corre e nem marca',
+  P: 'Preguiçoso',
   B: 'Corre e marca',
   A: 'Joga bem',
 };
 
 export const NIVEL_ICONE: Record<Nivel, string> = {
-  C: '🔺',
+  C: 'cone',
+  P: '🥱',
   B: '🏃',
   A: '⭐',
 };
 
 export const NIVEL_CORES: Record<Nivel, { bg: string; text: string; border: string }> = {
   C: { bg: '#FAECE7', text: '#993C1D', border: '#F0997B' },
+  P: { bg: '#FEF9E7', text: '#7D6608', border: '#F9E45A' },
   B: { bg: '#E6F1FB', text: '#185FA5', border: '#85B7EB' },
   A: { bg: '#EAF3DE', text: '#3B6D11', border: '#97C459' },
 };

@@ -4,12 +4,15 @@ import { Jogador, Nivel } from '../types';
 const STORAGE_KEY = 'futeba_jogadores';
 
 function migrarNivel(nivel: unknown): Nivel {
-  if (nivel === 1 || nivel === 2) return 'C';
-  if (nivel === 3 || nivel === 4) return 'B';
-  if (nivel === 5) return 'A';
+  if (nivel === 'A' || nivel === 'B' || nivel === 'P' || nivel === 'C') return nivel;
   if (nivel === 'D') return 'C';
-  if (nivel === 'C' || nivel === 'B' || nivel === 'A') return nivel;
-  return 'B';
+  if (typeof nivel === 'number') {
+    if (nivel <= 1) return 'C';
+    if (nivel === 2) return 'P';
+    if (nivel <= 4) return 'B';
+    return 'A';
+  }
+  return 'C';
 }
 
 export function useJogadores() {

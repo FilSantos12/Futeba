@@ -2,6 +2,11 @@ import { useState } from 'react';
 import { Jogador, Nivel, NIVEL_LABELS, NIVEL_ORDEM } from '../types';
 import { NivelBadge } from './NivelBadge';
 import { NivelStars } from './NivelStars';
+import {
+  IconEdit, IconTrash, IconCheck, IconClose,
+  IconSearch, IconExport, IconImport,
+  IconAbsent, IconPresent,
+} from './Icons';
 
 interface Props {
   jogadores: Jogador[];
@@ -54,7 +59,6 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onToggleFaltou,
   const sorted = [...jogadores]
     .filter((j) => j.nome.toLowerCase().includes(busca.toLowerCase()))
     .sort((a, b) => {
-      // Ausentes sempre ao final
       if (!!a.faltou !== !!b.faltou) return a.faltou ? 1 : -1;
       return ordenacao === 'nivel'
         ? NIVEL_ORDEM[b.nivel] - NIVEL_ORDEM[a.nivel]
@@ -82,13 +86,24 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onToggleFaltou,
       </div>
 
       {/* Toolbar — linha 1: busca */}
-      <div style={{ marginBottom: '8px' }}>
+      <div style={{ position: 'relative', marginBottom: '8px' }}>
+        <div style={{
+          position: 'absolute',
+          left: '12px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          color: 'var(--text-secondary)',
+          pointerEvents: 'none',
+          display: 'flex',
+        }}>
+          <IconSearch size={16} />
+        </div>
         <input
           type="text"
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
           placeholder="Buscar jogador..."
-          style={{ ...inputStyle, width: '100%' }}
+          style={{ ...inputStyle, width: '100%', paddingLeft: '38px' }}
         />
       </div>
 
@@ -102,11 +117,11 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onToggleFaltou,
           <option value="nivel">Por nível</option>
           <option value="nome">Por nome</option>
         </select>
-        <button onClick={onExportar} style={btnOutlineStyle} title="Exportar JSON">
-          ↓ Exportar
+        <button onClick={onExportar} style={btnOutlineStyle} title="Exportar JSON" aria-label="Exportar">
+          <IconExport size={16} />
         </button>
-        <label style={{ ...btnOutlineStyle, cursor: 'pointer' }} title="Importar JSON">
-          ↑ Importar
+        <label style={{ ...btnOutlineStyle, cursor: 'pointer' }} title="Importar JSON" aria-label="Importar">
+          <IconImport size={16} />
           <input type="file" accept=".json" onChange={handleImportar} style={{ display: 'none' }} />
         </label>
       </div>
@@ -139,15 +154,17 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onToggleFaltou,
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
                     onClick={confirmarEdicao}
+                    aria-label="Salvar edição"
                     style={{ ...btnOutlineStyle, flex: 1, justifyContent: 'center', color: '#3B6D11', borderColor: '#97C459' }}
                   >
-                    Salvar
+                    <IconCheck size={18} color="#27ae60" />
                   </button>
                   <button
                     onClick={() => setEditandoId(null)}
+                    aria-label="Cancelar edição"
                     style={{ ...btnOutlineStyle, flex: 1, justifyContent: 'center' }}
                   >
-                    Cancelar
+                    <IconClose size={18} color="#888" />
                   </button>
                 </div>
               </div>
@@ -157,24 +174,30 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onToggleFaltou,
                 key={j.id}
                 style={{
                   ...itemStyle,
+                  justifyContent: 'space-between',
                   opacity: j.faltou ? 0.45 : 1,
                   transition: 'opacity 0.2s',
                 }}
               >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <span
-                    style={{
-                      fontWeight: 600,
-                      fontSize: '14px',
-                      color: 'var(--text)',
-                      textDecoration: j.faltou ? 'line-through' : 'none',
-                    }}
-                  >
-                    {j.nome}
-                  </span>
-                </div>
+                <span
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    fontWeight: 600,
+                    fontSize: '14px',
+                    color: 'var(--text)',
+                    textDecoration: j.faltou ? 'line-through' : 'none',
+                  }}
+                >
+                  {j.nome}
+                </span>
 
-                <NivelBadge nivel={j.nivel} />
+                <span style={{ flexShrink: 0 }}>
+                  <NivelBadge nivel={j.nivel} />
+                </span>
 
                 {/* Botão Faltou / Voltou */}
                 <button
@@ -182,20 +205,19 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onToggleFaltou,
                   aria-label={j.faltou ? `Marcar ${j.nome} como presente` : `Marcar ${j.nome} como ausente`}
                   style={{
                     padding: '0 12px',
-                    fontSize: '12px',
-                    fontWeight: 600,
                     borderRadius: '99px',
                     border: `1px solid ${j.faltou ? '#E24B4A' : 'var(--border)'}`,
                     background: j.faltou ? '#FCEBEB' : 'transparent',
                     color: j.faltou ? '#A32D2D' : 'var(--text-secondary)',
                     cursor: 'pointer',
-                    whiteSpace: 'nowrap',
                     height: '44px',
                     display: 'flex',
                     alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
                   }}
                 >
-                  {j.faltou ? 'Voltou' : 'Faltou'}
+                  {j.faltou ? <IconPresent size={16} /> : <IconAbsent size={16} />}
                 </button>
 
                 <button
@@ -203,14 +225,14 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onToggleFaltou,
                   style={iconBtnStyle}
                   aria-label={`Editar ${j.nome}`}
                 >
-                  ✏️
+                  <IconEdit size={16} />
                 </button>
                 <button
                   onClick={() => { if (confirm(`Remover ${j.nome}?`)) onRemover(j.id); }}
-                  style={{ ...iconBtnStyle, color: '#A32D2D' }}
+                  style={{ ...iconBtnStyle, color: '#e74c3c' }}
                   aria-label={`Remover ${j.nome}`}
                 >
-                  🗑️
+                  <IconTrash size={16} color="#e74c3c" />
                 </button>
               </div>
             ),
@@ -234,11 +256,10 @@ const itemStyle: React.CSSProperties = {
   alignItems: 'center',
   gap: '8px',
   minHeight: '56px',
-  padding: '10px 12px',
+  padding: '10px 14px',
   background: 'var(--card-bg)',
   border: '1px solid var(--border)',
   borderRadius: '10px',
-  flexWrap: 'wrap',
 };
 
 const inputStyle: React.CSSProperties = {
@@ -268,17 +289,17 @@ const btnOutlineStyle: React.CSSProperties = {
 };
 
 const iconBtnStyle: React.CSSProperties = {
-  background: 'none',
-  border: 'none',
-  cursor: 'pointer',
-  fontSize: '18px',
-  width: '44px',
-  height: '44px',
-  display: 'flex',
+  display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
+  minWidth: '44px',
+  minHeight: '44px',
+  padding: '8px',
+  background: 'transparent',
+  border: 'none',
   borderRadius: '8px',
-  opacity: 0.75,
-  transition: 'opacity 0.1s',
+  cursor: 'pointer',
+  color: 'var(--text-secondary)',
+  transition: 'background 0.15s ease',
   flexShrink: 0,
 };
