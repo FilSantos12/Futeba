@@ -7,7 +7,7 @@ export const NIVEL_ORDEM: Record<Nivel, number> = {
 };
 
 export const NIVEL_LABELS: Record<Nivel, string> = {
-  C: 'Cone',
+  C: 'Não corre e nem marca',
   B: 'Corre e marca',
   A: 'Joga bem',
 };

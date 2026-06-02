@@ -182,9 +182,9 @@ export function SorteioTimes({ jogadores }: Props) {
                 {resultado.reservas.map((j) => (
                   <div
                     key={j.id}
-                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '99px' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '99px' }}
                   >
-                    <span style={{ fontSize: '13px' }}>{j.nome}</span>
+                    <span style={{ fontSize: '13px', color: 'var(--text)' }}>{j.nome}</span>
                     <NivelBadge nivel={j.nivel} />
                   </div>
                 ))}

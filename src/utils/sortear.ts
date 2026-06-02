@@ -9,11 +9,6 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-const NOMES_TIMES = [
-  'Esquadrão Alfa', 'Falcões', 'Tubarões', 'Leões', 'Cobras',
-  'Dragões', 'Panteras', 'Trovões', 'Lobos', 'Tigres',
-];
-
 export function sortearTimes(
   jogadores: Jogador[],
   porTime: number,
@@ -62,16 +57,14 @@ export function sortearTimes(
   if (naoEncaixados.length > 0) {
     const s = naoEncaixados.length;
     avisos.push(
-      `${s} Cone${s > 1 ? 's' : ''} ${s > 1 ? 'foram movidos' : 'foi movido'} para reservas por limite de 1 Cone por time`,
+      `${s} jogador${s > 1 ? 'es' : ''} nível C ${s > 1 ? 'foram movidos' : 'foi movido'} para reservas (limite de 1 por time)`,
     );
   }
-
-  const nomesEmbaralhados = shuffle(NOMES_TIMES);
 
   return {
     times: timesArr.map((jogadoresTime, i) => ({
       id: i,
-      nome: nomesEmbaralhados[i] ?? `Time ${i + 1}`,
+      nome: `Time ${i + 1}`,
       cor: TIME_PALETA[i % TIME_PALETA.length] as TimeCor,
       jogadores: jogadoresTime,
       forca: jogadoresTime.reduce((acc, j) => acc + NIVEL_ORDEM[j.nivel], 0),
