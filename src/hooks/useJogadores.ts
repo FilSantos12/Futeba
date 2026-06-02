@@ -3,11 +3,24 @@ import { Jogador, Nivel } from '../types';
 
 const STORAGE_KEY = 'futeba_jogadores';
 
+function migrarNivel(nivel: unknown): Nivel {
+  if (nivel === 1 || nivel === 2) return 'C';
+  if (nivel === 3 || nivel === 4) return 'B';
+  if (nivel === 5) return 'A';
+  if (nivel === 'D') return 'C';
+  if (nivel === 'C' || nivel === 'B' || nivel === 'A') return nivel;
+  return 'B';
+}
+
 export function useJogadores() {
   const [jogadores, setJogadores] = useState<Jogador[]>(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      const lista: unknown[] = parsed.jogadores ?? parsed;
+      if (!Array.isArray(lista)) return [];
+      return lista.map((j) => ({ ...(j as Jogador), nivel: migrarNivel((j as Jogador).nivel) }));
     } catch {
       return [];
     }
@@ -21,7 +34,7 @@ export function useJogadores() {
     const nomeNorm = nome.trim();
     if (!nomeNorm) return false;
     const jaExiste = jogadores.some(
-      (j) => j.nome.toLowerCase() === nomeNorm.toLowerCase()
+      (j) => j.nome.toLowerCase() === nomeNorm.toLowerCase(),
     );
     if (jaExiste) return false;
     const novo: Jogador = {
@@ -40,18 +53,18 @@ export function useJogadores() {
 
   const editar = (id: string, nome: string, nivel: Nivel) => {
     setJogadores((prev) =>
-      prev.map((j) => (j.id === id ? { ...j, nome: nome.trim(), nivel } : j))
+      prev.map((j) => (j.id === id ? { ...j, nome: nome.trim(), nivel } : j)),
     );
   };
 
   const importar = (data: Jogador[]) => {
-    setJogadores(data);
+    setJogadores(data.map((j) => ({ ...j, nivel: migrarNivel(j.nivel) })));
   };
 
   const exportar = () => {
     const blob = new Blob(
-      [JSON.stringify({ versao: '1.0', jogadores, exportadoEm: new Date().toISOString() }, null, 2)],
-      { type: 'application/json' }
+      [JSON.stringify({ versao: '2.0', jogadores, exportadoEm: new Date().toISOString() }, null, 2)],
+      { type: 'application/json' },
     );
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

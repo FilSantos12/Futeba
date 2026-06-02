@@ -8,7 +8,7 @@ interface Props {
 
 export function CadastroForm({ onAdicionar }: Props) {
   const [nome, setNome] = useState('');
-  const [nivel, setNivel] = useState<Nivel>('C');
+  const [nivel, setNivel] = useState<Nivel>('B');
   const [feedback, setFeedback] = useState<{ msg: string; ok: boolean } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -17,9 +17,9 @@ export function CadastroForm({ onAdicionar }: Props) {
     if (ok) {
       setFeedback({ msg: `✓ ${nome.trim()} adicionado!`, ok: true });
       setNome('');
-      setNivel('C');
+      setNivel('B');
       inputRef.current?.focus();
-      try { navigator.vibrate(50); } catch { /* não suportado */ }
+      try { navigator.vibrate?.(50); } catch { /* não suportado */ }
     } else {
       setFeedback({
         msg: nome.trim() ? 'Jogador já cadastrado.' : 'Digite o nome do jogador.',
@@ -56,7 +56,7 @@ export function CadastroForm({ onAdicionar }: Props) {
       <div style={{ marginBottom: '1.25rem' }}>
         <label style={labelStyle}>Nível — {NIVEL_LABELS[nivel]}</label>
         <div style={{ marginTop: '8px' }}>
-          <NivelStars valor={nivel} onChange={setNivel} layout="grid" />
+          <NivelStars valor={nivel} onChange={setNivel} />
         </div>
       </div>
 

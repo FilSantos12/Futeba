@@ -15,7 +15,7 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onExportar, onI
   const [busca, setBusca] = useState('');
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [editNome, setEditNome] = useState('');
-  const [editNivel, setEditNivel] = useState<Nivel>('C');
+  const [editNivel, setEditNivel] = useState<Nivel>('B');
   const [ordenacao, setOrdenacao] = useState<'nome' | 'nivel'>('nivel');
 
   const iniciarEdicao = (j: Jogador) => {
@@ -92,7 +92,7 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onExportar, onI
       </div>
 
       {/* Toolbar — linha 2: ordenação + exportar + importar */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem', flexWrap: 'wrap' }}>
         <select
           value={ordenacao}
           onChange={(e) => setOrdenacao(e.target.value as 'nome' | 'nivel')}
@@ -130,7 +130,9 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onExportar, onI
                 />
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <NivelStars valor={editNivel} onChange={setEditNivel} />
-                  <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{NIVEL_LABELS[editNivel]}</span>
+                  <span style={{ fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>
+                    {NIVEL_LABELS[editNivel]}
+                  </span>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button

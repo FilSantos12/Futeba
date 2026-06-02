@@ -1,4 +1,4 @@
-import { Nivel, NIVEL_LABELS, NIVEL_CORES } from '../types';
+import { Nivel, NIVEL_LABELS, NIVEL_ICONE, NIVEL_CORES } from '../types';
 
 interface Props {
   nivel: Nivel;
@@ -9,6 +9,9 @@ export function NivelBadge({ nivel }: Props) {
   return (
     <span
       style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '4px',
         fontSize: '11px',
         fontWeight: 600,
         padding: '2px 8px',
@@ -20,7 +23,7 @@ export function NivelBadge({ nivel }: Props) {
         letterSpacing: '0.02em',
       }}
     >
-      {NIVEL_LABELS[nivel]}
+      {NIVEL_ICONE[nivel]} {NIVEL_LABELS[nivel]}
     </span>
   );
 }

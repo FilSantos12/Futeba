@@ -7,15 +7,6 @@ interface Props {
   jogadores: Jogador[];
 }
 
-const TIME_CORES = [
-  { bg: '#E6F1FB', text: '#185FA5', border: '#85B7EB' },
-  { bg: '#EAF3DE', text: '#3B6D11', border: '#97C459' },
-  { bg: '#FAECE7', text: '#993C1D', border: '#F0997B' },
-  { bg: '#FAEEDA', text: '#854F0B', border: '#EF9F27' },
-  { bg: '#EEEDFE', text: '#3C3489', border: '#AFA9EC' },
-  { bg: '#F1EFE8', text: '#444441', border: '#B4B2A9' },
-];
-
 export function SorteioTimes({ jogadores }: Props) {
   const [porTime, setPorTime] = useState(6);
   const [resultado, setResultado] = useState<{ times: Time[]; reservas: Jogador[]; avisos: string[] } | null>(null);
@@ -25,8 +16,7 @@ export function SorteioTimes({ jogadores }: Props) {
   const podeJogar = jogadores.length >= minimo;
 
   const handleSortear = () => {
-    const r = sortearTimes(jogadores, porTime);
-    setResultado(r);
+    setResultado(sortearTimes(jogadores, porTime));
     setAnimKey((k) => k + 1);
   };
 
@@ -36,7 +26,7 @@ export function SorteioTimes({ jogadores }: Props) {
       const jogadoresStr = t.jogadores
         .map((j) => `  - ${j.nome} (${j.nivel} - ${NIVEL_LABELS[j.nivel]})`)
         .join('\n');
-      return `${t.nome} (Força: ${t.forca})\n${jogadoresStr}`;
+      return `${t.nome} [${t.cor.nome}] (Força: ${t.forca})\n${jogadoresStr}`;
     });
     if (resultado.reservas.length > 0) {
       linhas.push(`\nReservas:\n${resultado.reservas.map((j) => `  - ${j.nome}`).join('\n')}`);
@@ -50,6 +40,10 @@ export function SorteioTimes({ jogadores }: Props) {
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  const maxForca = resultado
+    ? Math.max(...resultado.times.map((t) => t.forca), 1)
+    : 1;
 
   return (
     <div>
@@ -87,9 +81,6 @@ export function SorteioTimes({ jogadores }: Props) {
           disabled={!podeJogar}
           style={{
             ...btnBigStyle,
-            width: '100%',
-            height: '56px',
-            fontSize: '18px',
             opacity: podeJogar ? 1 : 0.5,
             cursor: podeJogar ? 'pointer' : 'not-allowed',
           }}
@@ -98,7 +89,10 @@ export function SorteioTimes({ jogadores }: Props) {
         </button>
 
         {resultado && (
-          <button onClick={handleExportarTimes} style={{ ...btnOutlineStyle, width: '100%', justifyContent: 'center', marginTop: '10px' }}>
+          <button
+            onClick={handleExportarTimes}
+            style={{ ...btnOutlineStyle, width: '100%', justifyContent: 'center', marginTop: '10px' }}
+          >
             ↓ Exportar resultado
           </button>
         )}
@@ -122,21 +116,24 @@ export function SorteioTimes({ jogadores }: Props) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', marginBottom: '1rem' }}>
             {resultado.times.map((time) => {
-              const cor = TIME_CORES[time.id % TIME_CORES.length];
+              const cor = time.cor;
               return (
                 <div
                   key={time.id}
-                  style={{ background: 'var(--card-bg)', border: `1px solid ${cor.border}`, borderRadius: '12px', overflow: 'hidden' }}
+                  style={{ border: `2px solid ${cor.border}`, borderRadius: '12px', overflow: 'hidden', background: 'var(--card-bg)' }}
                 >
-                  <div style={{ background: cor.bg, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontFamily: '"Bebas Neue", sans-serif', fontSize: '20px', letterSpacing: '0.05em', color: cor.text }}>
+                  {/* Header */}
+                  <div style={{ background: cor.primary, padding: '12px 16px' }}>
+                    <div style={{ fontFamily: '"Bebas Neue", sans-serif', fontSize: '22px', color: cor.text, letterSpacing: '0.05em', lineHeight: 1.1 }}>
                       {time.nome}
-                    </span>
-                    <span style={{ fontSize: '12px', color: cor.text, opacity: 0.8, fontWeight: 600 }}>
-                      força {time.forca}
+                    </div>
+                    <span style={{ display: 'inline-block', marginTop: '4px', fontSize: '10px', fontWeight: 600, background: cor.badge, color: cor.primary, borderRadius: '99px', padding: '2px 8px', letterSpacing: '0.03em' }}>
+                      {cor.nome}
                     </span>
                   </div>
-                  <div style={{ padding: '4px 16px 12px' }}>
+
+                  {/* Jogadores */}
+                  <div style={{ padding: '4px 16px 0' }}>
                     {time.jogadores.map((j, i) => (
                       <div
                         key={j.id}
@@ -153,6 +150,17 @@ export function SorteioTimes({ jogadores }: Props) {
                         <NivelBadge nivel={j.nivel} />
                       </div>
                     ))}
+                  </div>
+
+                  {/* Barra de força */}
+                  <div style={{ padding: '10px 16px 12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '5px' }}>
+                      <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Força: {time.forca}</span>
+                    </div>
+                    <div style={{ position: 'relative', height: '4px', borderRadius: '2px' }}>
+                      <div style={{ position: 'absolute', inset: 0, background: cor.primary, borderRadius: '2px', opacity: 0.25 }} />
+                      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, background: cor.primary, borderRadius: '2px', width: `${(time.forca / maxForca) * 100}%` }} />
+                    </div>
                   </div>
                 </div>
               );
@@ -220,7 +228,9 @@ const warnStyle: React.CSSProperties = {
 };
 
 const btnBigStyle: React.CSSProperties = {
-  padding: '0 24px',
+  width: '100%',
+  height: '56px',
+  fontSize: '18px',
   fontWeight: 700,
   background: 'var(--accent)',
   color: '#fff',

@@ -1,4 +1,4 @@
-import { Jogador, Time, NIVEL_ORDEM } from '../types';
+import { Jogador, Time, NIVEL_ORDEM, TIME_PALETA, TimeCor } from '../types';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -23,7 +23,7 @@ export function sortearTimes(
   const usados = embaralhados.slice(0, qtdTimes * porTime);
   const reservas: Jogador[] = embaralhados.slice(qtdTimes * porTime);
 
-  // Snake draft: distribui do maior para menor nível alternando a direção por rodada
+  // Snake draft: ordena do maior para menor nível e distribui em zigue-zague
   const ordenados = [...usados].sort((a, b) => NIVEL_ORDEM[b.nivel] - NIVEL_ORDEM[a.nivel]);
   const timesArr: Jogador[][] = Array.from({ length: qtdTimes }, () => []);
 
@@ -34,24 +34,23 @@ export function sortearTimes(
     timesArr[idx].push(jogador);
   });
 
-  // Restrição: máximo 1 jogador nível D por time
-  const excedentesD: Jogador[] = [];
+  // Restrição: máximo 1 Cone (nível C) por time
+  const excedentesC: Jogador[] = [];
   timesArr.forEach((time) => {
-    const jogadoresD = time.filter((j) => j.nivel === 'D');
-    if (jogadoresD.length > 1) {
-      for (const exc of jogadoresD.slice(1)) {
+    const cones = time.filter((j) => j.nivel === 'C');
+    if (cones.length > 1) {
+      for (const exc of cones.slice(1)) {
         time.splice(time.indexOf(exc), 1);
-        excedentesD.push(exc);
+        excedentesC.push(exc);
       }
     }
   });
 
-  // Tenta encaixar excedentes em times que ainda não têm nenhum D
   const naoEncaixados: Jogador[] = [];
-  for (const jogador of excedentesD) {
-    const timeSemD = timesArr.find((t) => !t.some((j) => j.nivel === 'D'));
-    if (timeSemD) {
-      timeSemD.push(jogador);
+  for (const jogador of excedentesC) {
+    const timeSemC = timesArr.find((t) => !t.some((j) => j.nivel === 'C'));
+    if (timeSemC) {
+      timeSemC.push(jogador);
     } else {
       naoEncaixados.push(jogador);
     }
@@ -63,7 +62,7 @@ export function sortearTimes(
   if (naoEncaixados.length > 0) {
     const s = naoEncaixados.length;
     avisos.push(
-      `${s} jogador${s > 1 ? 'es' : ''} Cone ${s > 1 ? 'foram movidos' : 'foi movido'} para reservas por limite de nível D por time`,
+      `${s} Cone${s > 1 ? 's' : ''} ${s > 1 ? 'foram movidos' : 'foi movido'} para reservas por limite de 1 Cone por time`,
     );
   }
 
@@ -73,6 +72,7 @@ export function sortearTimes(
     times: timesArr.map((jogadoresTime, i) => ({
       id: i,
       nome: nomesEmbaralhados[i] ?? `Time ${i + 1}`,
+      cor: TIME_PALETA[i % TIME_PALETA.length] as TimeCor,
       jogadores: jogadoresTime,
       forca: jogadoresTime.reduce((acc, j) => acc + NIVEL_ORDEM[j.nivel], 0),
     })),

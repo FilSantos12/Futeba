@@ -55,8 +55,8 @@ export function BottomNav({ tab, setTab, jogadoresCount }: Props) {
               padding: 0,
             }}
           >
-            <span style={{ fontSize: '32px', lineHeight: 1 }}>{icon}</span>
-            <span style={{ fontSize: '11px', fontWeight: active ? 600 : 400, letterSpacing: '0.02em' }}>
+            <span style={{ fontSize: '28px', lineHeight: 1 }}>{icon}</span>
+            <span style={{ fontSize: '10px', fontWeight: active ? 600 : 400, letterSpacing: '0.02em' }}>
               {displayLabel}
             </span>
           </button>
