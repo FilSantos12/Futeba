@@ -30,7 +30,7 @@ export function NivelStars({ valor, onChange, readonly = false, size = 'md' }: P
   }
 
   return (
-    <div style={{ display: 'flex', gap: '6px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
       {NIVEIS.map((n) => {
         const selected = n === valor;
         const { bg, text, border } = NIVEL_CORES[n];

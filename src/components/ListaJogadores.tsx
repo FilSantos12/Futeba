@@ -145,9 +145,21 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onToggleFaltou,
                   style={{ ...inputStyle, width: '100%' }}
                   autoFocus
                 />
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <NivelStars valor={editNivel} onChange={setEditNivel} />
-                  <span style={{ fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>
+                {/* Seletor de nível 2x2 + label da seleção atual */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <NivelStars valor={editNivel} onChange={setEditNivel} />
+                  </div>
+                  <span style={{
+                    fontSize: '11px',
+                    color: 'var(--text-secondary)',
+                    flexShrink: 1,
+                    minWidth: 0,
+                    maxWidth: '100px',
+                    wordBreak: 'break-word',
+                    textAlign: 'right',
+                    marginTop: '4px',
+                  }}>
                     {NIVEL_LABELS[editNivel]}
                   </span>
                 </div>
@@ -174,20 +186,20 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onToggleFaltou,
                 key={j.id}
                 style={{
                   ...itemStyle,
-                  justifyContent: 'space-between',
                   opacity: j.faltou ? 0.45 : 1,
                   transition: 'opacity 0.2s',
                 }}
               >
+                {/* Nome — cresce e trunca com ellipsis */}
                 <span
                   style={{
-                    flex: 1,
+                    flex: '1 1 80px',
                     minWidth: 0,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
                     fontWeight: 600,
-                    fontSize: '14px',
+                    fontSize: '13px',
                     color: 'var(--text)',
                     textDecoration: j.faltou ? 'line-through' : 'none',
                   }}
@@ -195,45 +207,48 @@ export function ListaJogadores({ jogadores, onRemover, onEditar, onToggleFaltou,
                   {j.nome}
                 </span>
 
-                <span style={{ flexShrink: 0 }}>
-                  <NivelBadge nivel={j.nivel} />
-                </span>
+                {/* Badge de nível — máximo 130px, texto trunca se necessário */}
+                <NivelBadge nivel={j.nivel} />
 
-                {/* Botão Faltou / Voltou */}
-                <button
-                  onClick={() => onToggleFaltou(j.id)}
-                  aria-label={j.faltou ? `Marcar ${j.nome} como presente` : `Marcar ${j.nome} como ausente`}
-                  style={{
-                    padding: '0 12px',
-                    borderRadius: '99px',
-                    border: `1px solid ${j.faltou ? '#E24B4A' : 'var(--border)'}`,
-                    background: j.faltou ? '#FCEBEB' : 'transparent',
-                    color: j.faltou ? '#A32D2D' : 'var(--text-secondary)',
-                    cursor: 'pointer',
-                    height: '44px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
-                >
-                  {j.faltou ? <IconPresent size={16} /> : <IconAbsent size={16} />}
-                </button>
+                {/* Ações: Faltou/Voltou · Editar · Remover */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+                  <button
+                    onClick={() => onToggleFaltou(j.id)}
+                    aria-label={j.faltou ? `Marcar ${j.nome} como presente` : `Marcar ${j.nome} como ausente`}
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      minWidth: '32px',
+                      minHeight: '32px',
+                      borderRadius: '50%',
+                      border: `1px solid ${j.faltou ? '#E24B4A' : 'var(--border)'}`,
+                      background: j.faltou ? '#FCEBEB' : 'transparent',
+                      color: j.faltou ? '#A32D2D' : 'var(--text-secondary)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 0,
+                    }}
+                  >
+                    {j.faltou ? <IconPresent size={14} /> : <IconAbsent size={14} />}
+                  </button>
 
-                <button
-                  onClick={() => iniciarEdicao(j)}
-                  style={iconBtnStyle}
-                  aria-label={`Editar ${j.nome}`}
-                >
-                  <IconEdit size={16} />
-                </button>
-                <button
-                  onClick={() => { if (confirm(`Remover ${j.nome}?`)) onRemover(j.id); }}
-                  style={{ ...iconBtnStyle, color: '#e74c3c' }}
-                  aria-label={`Remover ${j.nome}`}
-                >
-                  <IconTrash size={16} color="#e74c3c" />
-                </button>
+                  <button
+                    onClick={() => iniciarEdicao(j)}
+                    style={iconBtnStyle}
+                    aria-label={`Editar ${j.nome}`}
+                  >
+                    <IconEdit size={14} />
+                  </button>
+                  <button
+                    onClick={() => { if (confirm(`Remover ${j.nome}?`)) onRemover(j.id); }}
+                    style={{ ...iconBtnStyle, color: '#e74c3c' }}
+                    aria-label={`Remover ${j.nome}`}
+                  >
+                    <IconTrash size={14} color="#e74c3c" />
+                  </button>
+                </div>
               </div>
             ),
           )}
@@ -254,12 +269,14 @@ const statCardStyle: React.CSSProperties = {
 const itemStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
-  minHeight: '56px',
-  padding: '10px 14px',
+  gap: '6px',
+  minHeight: '52px',
+  padding: '10px 12px',
   background: 'var(--card-bg)',
   border: '1px solid var(--border)',
   borderRadius: '10px',
+  overflow: 'hidden',
+  boxSizing: 'border-box',
 };
 
 const inputStyle: React.CSSProperties = {
@@ -292,12 +309,14 @@ const iconBtnStyle: React.CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-  minWidth: '44px',
-  minHeight: '44px',
-  padding: '8px',
+  width: '28px',
+  height: '28px',
+  minWidth: '28px',
+  minHeight: '28px',
+  padding: 0,
   background: 'transparent',
   border: 'none',
-  borderRadius: '8px',
+  borderRadius: '6px',
   cursor: 'pointer',
   color: 'var(--text-secondary)',
   transition: 'background 0.15s ease',
