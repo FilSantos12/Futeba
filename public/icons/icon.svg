@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <clipPath id="bc">
+      <circle cx="256" cy="256" r="175"/>
+    </clipPath>
+  </defs>
+  <!-- Green rounded background -->
+  <rect width="512" height="512" rx="88" fill="#16a34a"/>
+  <!-- Ball + patches clipped to circle -->
+  <g clip-path="url(#bc)">
+    <circle cx="256" cy="256" r="175" fill="white"/>
+    <!-- Central pentagon -->
+    <polygon points="256,196 298,226 282,272 230,272 214,226" fill="#111827"/>
+    <!-- Top -->
+    <polygon points="214,100 298,100 318,156 256,138 194,156" fill="#111827"/>
+    <!-- Top-right -->
+    <polygon points="370,158 418,206 398,272 346,254 344,188" fill="#111827"/>
+    <!-- Bottom-right -->
+    <polygon points="386,330 404,404 346,428 314,368 354,312" fill="#111827"/>
+    <!-- Bottom -->
+    <polygon points="194,398 256,380 318,398 302,460 210,460" fill="#111827"/>
+    <!-- Bottom-left -->
+    <polygon points="126,330 158,312 198,370 166,428 108,404" fill="#111827"/>
+    <!-- Top-left -->
+    <polygon points="142,160 168,190 166,256 114,272 94,206" fill="#111827"/>
+  </g>
+  <!-- Ball outline -->
+  <circle cx="256" cy="256" r="175" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="4"/>
+</svg>

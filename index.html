@@ -2,20 +2,156 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/futeba/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="description" content="FUTEBA - Sorteio inteligente de times de futebol" />
+
+    <!-- PWA manifest -->
+    <link rel="manifest" href="%BASE_URL%manifest.json" />
+
+    <!-- Android PWA -->
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="theme-color" content="#1a7a3c" />
+
+    <!-- iOS PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="FUTEBA" />
+    <link rel="apple-touch-icon" href="%BASE_URL%icons/icon-192.png" />
+
     <title>FUTEBA</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   </head>
   <body>
+    <!-- Banner de instalação Android (oculto por padrão) -->
+    <div id="install-banner" style="
+      display: none;
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      background: white;
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      display: none;
+      align-items: center;
+      gap: 12px;
+      max-width: 340px;
+      width: calc(100% - 32px);
+    ">
+      <img src="%BASE_URL%icons/icon-192.png" width="40" height="40" style="border-radius: 8px;" alt="" />
+      <div style="flex: 1;">
+        <div style="font-weight: 600; font-size: 14px; color: #111827;">FUTEBA</div>
+        <div style="font-size: 12px; color: #6b7280;">Adicionar à tela inicial</div>
+      </div>
+      <button id="install-btn" style="
+        background: #1a7a3c;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+      ">Instalar</button>
+      <button id="install-dismiss" style="
+        background: none;
+        border: none;
+        color: #9ca3af;
+        cursor: pointer;
+        font-size: 18px;
+        padding: 4px;
+        line-height: 1;
+      ">×</button>
+    </div>
+
+    <!-- Instrução iOS (visível apenas no Safari iOS fora do standalone) -->
+    <div id="ios-banner" style="
+      display: none;
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      background: white;
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      max-width: 320px;
+      width: calc(100% - 32px);
+      text-align: center;
+    ">
+      <div style="font-size: 13px; color: #374151; line-height: 1.5;">
+        Para instalar: toque em <strong>Compartilhar ⬆</strong> e depois<br>
+        <strong>"Adicionar à Tela de Início"</strong>
+      </div>
+      <button id="ios-dismiss" style="
+        margin-top: 10px;
+        background: none;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 6px 16px;
+        font-size: 12px;
+        color: #6b7280;
+        cursor: pointer;
+      ">Fechar</button>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <script>
+      // Registro do Service Worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker
+            .register('%BASE_URL%service-worker.js')
+            .then(function (r) { console.log('[SW] Registrado:', r.scope); })
+            .catch(function (e) { console.warn('[SW] Falha no registro:', e); });
+        });
+      }
+
+      // Banner de instalação Android (beforeinstallprompt)
+      var deferredPrompt = null;
+      var installBanner = document.getElementById('install-banner');
+      var installBtn = document.getElementById('install-btn');
+      var installDismiss = document.getElementById('install-dismiss');
+
+      window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBanner.style.display = 'flex';
+      });
+
+      installBtn && installBtn.addEventListener('click', function () {
+        installBanner.style.display = 'none';
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then(function () { deferredPrompt = null; });
+        }
+      });
+
+      installDismiss && installDismiss.addEventListener('click', function () {
+        installBanner.style.display = 'none';
+      });
+
+      // Banner iOS
+      var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+      if (isIOS && !isStandalone) {
+        var iosBanner = document.getElementById('ios-banner');
+        var iosDismiss = document.getElementById('ios-dismiss');
+        setTimeout(function () { iosBanner.style.display = 'block'; }, 2000);
+        iosDismiss && iosDismiss.addEventListener('click', function () {
+          iosBanner.style.display = 'none';
+        });
+      }
+    </script>
   </body>
 </html>
