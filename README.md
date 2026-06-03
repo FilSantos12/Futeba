@@ -1,115 +1,82 @@
-# ⚽ FUTEBA
+# FUTEBA
 
-Sistema de cadastro e sorteio balanceado de times de futebol.
+App para sorteio balanceado de times de futebol. Feito para uso no celular, sem backend — tudo salvo localmente no navegador (localStorage). Instalável como PWA no iOS e Android.
+
+**App:** [filsantos12.github.io/Futeba](https://filsantos12.github.io/Futeba/)
 
 ## Funcionalidades
 
-- ✅ Cadastro de jogadores com nível de 1 a 5 estrelas
-- ✅ Edição e remoção de jogadores
-- ✅ Sorteio balanceado (snake draft — distribui os melhores entre os times)
-- ✅ Times configuráveis: 4, 5, 6, 7, 8, 9, 10 ou 11 jogadores por time
-- ✅ Exportar/importar lista de jogadores (JSON)
-- ✅ Exportar resultado do sorteio (TXT)
-- ✅ Tema claro e escuro
-- ✅ Dados salvos localmente no navegador (localStorage)
+- Cadastro de jogadores com nível de habilidade (C / P / B / A)
+- Edição, remoção e marcação de falta por jogador
+- Sorteio balanceado via snake draft com restrição de nível C por time
+- Times configuráveis: 4 a 11 jogadores por time
+- Exportar / importar lista de jogadores (JSON)
+- Tema claro e escuro
+- PWA instalável (iOS via Safari, Android via Chrome)
+
+## Níveis
+
+| Letra | Significado | Peso |
+|-------|-------------|------|
+| C | Não corre e nem marca | 1 |
+| P | Preguiçoso | 2 |
+| B | Corre e marca | 3 |
+| A | Joga bem | 4 |
+
+## Como o sorteio funciona
+
+O algoritmo usa **snake draft**:
+
+1. Filtra apenas jogadores presentes (sem `faltou`)
+2. Embaralha aleatoriamente
+3. Calcula quantos times cabem; excedentes viram reservas
+4. Ordena do maior para o menor nível
+5. Distribui em zigue-zague entre os times (rodadas pares: 0→N, ímpares: N→0)
+6. Aplica restrição: máximo 1 jogador nível C por time — excedentes vão para reservas com aviso
 
 ## Tecnologias
 
 - React 18 + TypeScript
 - Vite
 - localStorage (sem backend)
-- GitHub Pages (hospedagem gratuita)
+- PWA (manifest + service worker)
+- GitHub Actions + GitHub Pages
 
-## Como rodar localmente
-
-```bash
-npm install
-npm run dev
-```
-
-## Deploy no GitHub Pages
-
-### 1. Configure o repositório
-
-Crie um repositório no GitHub chamado `futeba`.
-
-### 2. Atualize o package.json
-
-Substitua `SEU_USUARIO` pelo seu nome de usuário do GitHub no campo `homepage`:
-
-```json
-"homepage": "https://SEU_USUARIO.github.io/futeba"
-```
-
-### 3. Configure o remote e faça o primeiro push
+## Comandos
 
 ```bash
-git init
-git add .
-git commit -m "feat: FUTEBA inicial"
-git branch -M main
-git remote add origin https://github.com/SEU_USUARIO/futeba.git
-git push -u origin main
+npm install          # instalar dependências
+npm run dev          # servidor de desenvolvimento
+npm run build        # TypeScript check + build Vite
+npm run preview      # visualizar build localmente
+node generate-icons.js  # regenerar icon-192.png e icon-512.png (requer sharp)
 ```
 
-### 4. Deploy
+O deploy é automático: cada push ao branch `master` aciona o GitHub Actions e publica em `https://filsantos12.github.io/Futeba/`.
 
-```bash
-npm run deploy
-```
-
-Isso vai fazer o build e publicar o conteúdo da pasta `dist` no branch `gh-pages`.
-
-### 5. Configure o GitHub Pages
-
-No repositório → Settings → Pages → Source: **Deploy from branch** → Branch: `gh-pages` → `/root`
-
-Após alguns minutos, o site estará em:
-`https://SEU_USUARIO.github.io/futeba`
-
-## Estrutura do projeto
+## Estrutura
 
 ```
-futeba/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── components/
-│   │   ├── CadastroForm.tsx     # Formulário de cadastro
-│   │   ├── ListaJogadores.tsx   # Lista com busca e edição
-│   │   ├── NivelBadge.tsx       # Badge colorido de nível
-│   │   ├── NivelStars.tsx       # Estrelas interativas
-│   │   └── SorteioTimes.tsx     # Sorteio e exibição dos times
-│   ├── hooks/
-│   │   └── useJogadores.ts      # Estado + localStorage
-│   ├── types/
-│   │   └── index.ts             # Tipos TypeScript
-│   ├── utils/
-│   │   └── sortear.ts           # Algoritmo de sorteio balanceado
-│   ├── App.tsx                  # Componente raiz + roteamento de tabs
-│   ├── App.css                  # Variáveis CSS + tema dark/light
-│   └── main.tsx                 # Entrada da aplicação
-├── index.html
-├── package.json
-├── vite.config.ts
-└── tsconfig.json
+src/
+  types/index.ts            # tipos e constantes de domínio
+  hooks/useJogadores.ts     # estado global + localStorage
+  utils/sortear.ts          # algoritmo de sorteio (snake draft)
+  components/
+    App.tsx                 # layout raiz, estado de tab e tema
+    BottomNav.tsx           # navegação fixa no rodapé (mobile)
+    CadastroForm.tsx        # formulário de adicionar jogador
+    ListaJogadores.tsx      # lista com busca, edição, faltou
+    SorteioTimes.tsx        # configuração e resultado do sorteio
+    ShuffleAnimation.tsx    # animação de embaralhamento
+    NivelBadge.tsx          # badge inline de nível
+    NivelStars.tsx          # seletor interativo de nível (grid 2×2)
+    Icons.tsx               # todos os ícones SVG (sem dependências externas)
+  App.css                   # variáveis CSS de tema claro/escuro + keyframes
+public/
+  manifest.json             # PWA manifest
+  service-worker.js         # Cache First + runtime caching
+  icons/
+    icon.svg
+    icon-192.png
+    icon-512.png
 ```
-
-## Como o sorteio balanceado funciona
-
-O algoritmo usa **snake draft**:
-
-1. Embaralha os jogadores aleatoriamente
-2. Ordena do maior para o menor nível
-3. Distribui em zigue-zague entre os times:
-   - Rodada par: times 1, 2, 3, 4...
-   - Rodada ímpar: times 4, 3, 2, 1...
-4. Garante que todos os times ficam com força similar
-
-## Próximos passos (opcional)
-
-Para sincronizar dados entre dispositivos, integre com:
-
-- **Firebase Firestore** (gratuito até 1GB)
-- **Supabase** (gratuito até 500MB)
-- **GitHub Gist API** (gratuito, salva um JSON no Gist)
